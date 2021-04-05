@@ -1,21 +1,20 @@
 export default class GameKeyEvent {
 
     private element: HTMLCanvasElement;
-    private keyDownValue:Map<string, boolean>;
+    private keyDownValue:Record<string, boolean>;
 
     constructor(element: HTMLCanvasElement) {
         this.element = element;
-        this.keyDownValue = new Map<string, boolean>();
+        this.keyDownValue = {};
         addEventListener("keydown", event=>{
-            this.keyDownValue.set(event.key, true);
-            console.log("Key pressed is: " + event.key);
+            this.keyDownValue[event.key] = true;
         });
         addEventListener("keyup", event=>{
-            this.keyDownValue.set(event.key, false);
+            this.keyDownValue[event.key] = false;
         });
     }
 
     public isDown(key:string):boolean {
-        return this.keyDownValue.get(key) ? true : false;
+        return this.keyDownValue[key] ? true : false;
     }
 }

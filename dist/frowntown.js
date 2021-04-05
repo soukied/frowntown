@@ -117,7 +117,95 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"mKpP":[function(require,module,exports) {
+})({"rkI4":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var Camera =
+/** @class */
+function () {
+  function Camera(width, height) {
+    this.x = 0;
+    this.y = 0;
+    this.setPos(0, 0);
+    this.setSize(width, height);
+  }
+
+  Camera.prototype.reset = function () {
+    this.setPos(0, 0);
+  };
+
+  Camera.prototype.setX = function (x) {
+    this.x = x;
+  };
+
+  Camera.prototype.setY = function (y) {
+    this.y = y;
+  };
+
+  Camera.prototype.setPos = function (x, y) {
+    this.setX(x);
+    this.setY(y);
+  };
+
+  Camera.prototype.getX = function () {
+    return this.x;
+  };
+
+  Camera.prototype.getY = function () {
+    return this.y;
+  };
+
+  Camera.prototype.getPos = function () {
+    return [this.x, this.y];
+  };
+
+  Camera.prototype.moveX = function (velX) {
+    this.x -= velX;
+  };
+
+  Camera.prototype.moveY = function (velY) {
+    this.y -= velY;
+  };
+
+  Camera.prototype.move = function (velX, velY) {
+    this.moveX(velX);
+    this.moveY(velY);
+  };
+
+  Camera.prototype.setWidth = function (width) {
+    this.width = width;
+  };
+
+  Camera.prototype.setHeight = function (height) {
+    this.height = height;
+  };
+
+  Camera.prototype.setSize = function (width, height) {
+    this.setWidth(width);
+    this.setHeight(height);
+  };
+
+  Camera.prototype.getWidth = function () {
+    return this.width;
+  };
+
+  Camera.prototype.getHeight = function () {
+    return this.height;
+  };
+
+  Camera.prototype.getSize = function () {
+    return [this.width, this.height];
+  };
+
+  return Camera;
+}();
+
+exports.default = Camera;
+},{}],"mKpP":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -134,8 +222,6 @@ function () {
     this.keyDownValue = new Map();
     addEventListener("keydown", function (event) {
       _this.keyDownValue.set(event.key, true);
-
-      console.log("Key pressed is: " + event.key);
     });
     addEventListener("keyup", function (event) {
       _this.keyDownValue.set(event.key, false);
@@ -253,6 +339,10 @@ function () {
     this.graphics.fillRect(x, y, width, height);
   };
 
+  Graphics.prototype.getGraphics = function () {
+    return this.graphics;
+  };
+
   return Graphics;
 }();
 
@@ -287,13 +377,13 @@ function () {
     }
   }
 
-  Image.prototype.cropImage = function (dx, dy, dw, dh) {
+  Image.prototype.cropImage = function (sx, sy, sw, sh) {
     var virtualCanvas = document.createElement("canvas");
     var context;
     virtualCanvas.width = this.width;
     virtualCanvas.height = this.height;
     context = virtualCanvas.getContext("2d");
-    context.drawImage(this.imageElement, dx, dy, dw, dh);
+    context.drawImage(this.imageElement, sx, sy, sw, sh, 0, 0, this.width, this.height);
     return new Image(virtualCanvas);
   };
 
@@ -305,11 +395,8 @@ function () {
     return Image.allImageLoaded() ? this.imageElement : undefined;
   };
 
-  Image.prototype.drawImage = function (g) {};
-
   Image.IMAGE_COUNT = 0;
   Image.IMAGE_LOADED = 0;
-  Image.ALL_LOADED = false;
   return Image;
 }();
 
@@ -412,6 +499,8 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.Image = exports.createScene = exports.Init = void 0;
 
+var camera_1 = __importDefault(require("./camera"));
+
 var key_1 = __importDefault(require("./events/key"));
 
 var mouse_1 = __importDefault(require("./events/mouse"));
@@ -446,6 +535,7 @@ function () {
     this.graphics.imageSmoothingEnabled = false;
     this.keyEvent = new key_1.default(this.canvasElement);
     this.mouseEvent = new mouse_1.default(this.canvasElement);
+    this.camera = new camera_1.default(this.WIDTH, this.HEIGHT);
   }
 
   Game.prototype.setScale = function (x, y) {
@@ -460,11 +550,17 @@ function () {
     if (!this.currentScene.isInitialized) {
       if (this.currentScene.init instanceof Function) this.currentScene.init();
       this.currentScene.isInitialized = true;
-    }
+    } // set camera
+
 
     if (this.currentScene.update instanceof Function) this.currentScene.update();
     this.graphics.clearRect(0, 0, this.WIDTH, this.HEIGHT);
-    if (this.currentScene.render instanceof Function) this.currentScene.render(new graphics_1.default(this.graphics));
+
+    if (this.currentScene.render instanceof Function) {
+      this.graphics.translate(this.camera.getX(), this.camera.getY());
+      this.currentScene.render(new graphics_1.default(this.graphics));
+      this.graphics.translate(-this.camera.getX(), -this.camera.getY());
+    }
   };
 
   Game.prototype.start = function () {
@@ -511,4 +607,4 @@ function Init(width, height, parent) {
 }
 
 exports.Init = Init;
-},{"./events/key":"mKpP","./events/mouse":"tH3k","./graphics":"U5jo","./image":"gmPD","./scene":"kh5L"}]},{},["MYCW"], "Frowntown")
+},{"./camera":"rkI4","./events/key":"mKpP","./events/mouse":"tH3k","./graphics":"U5jo","./image":"gmPD","./scene":"kh5L"}]},{},["MYCW"], "Frowntown")

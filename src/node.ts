@@ -3,7 +3,7 @@ export default class Node {
     private y:number;
     private width:number;
     private height:number;
-
+    private attachedImage;
     constructor(posX, posY, width, height) {
         this.x = posX;
         this.y = posY;

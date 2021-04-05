@@ -1,4 +1,4 @@
-import Graphics from './graphics';
+import Graphics from './util/graphics';
 
 export interface SceneInterface {
     init():void;

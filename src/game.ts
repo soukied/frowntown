@@ -1,8 +1,8 @@
-import GameEvent from "./events/event";
+import Camera from "./util/camera";
 import GameKeyEvent from "./events/key";
 import GameMouseEvent from "./events/mouse";
-import Graphics from "./graphics";
-import Image from "./image";
+import Graphics from "./util/graphics";
+import Image, {loadImage} from "./util/image";
 import Scene, {createScene} from "./scene";
 
 class Game {
@@ -12,11 +12,11 @@ class Game {
     private graphics:CanvasRenderingContext2D;
     private IS_RUNNING:boolean;
     private currentScene:Scene;
-    public event:GameEvent;
     private WIDTH : number;
     private HEIGHT : number;
     public keyEvent : GameKeyEvent;
     public mouseEvent : GameMouseEvent;
+    public camera : Camera;
 
     constructor(width:number, height:number, parent:HTMLElement) {
         this.canvasElement = document.createElement("canvas");
@@ -32,6 +32,7 @@ class Game {
 
         this.keyEvent = new GameKeyEvent(this.canvasElement);
         this.mouseEvent = new GameMouseEvent(this.canvasElement);
+        this.camera = new Camera(this.WIDTH, this.HEIGHT);
     }
 
     public setScale(x:number, y:number) {
@@ -48,11 +49,15 @@ class Game {
                 this.currentScene.init();
             this.currentScene.isInitialized = true;
         }
+        // set camera
         if (this.currentScene.update instanceof Function)
-            this.currentScene.update();
+        this.currentScene.update();
         this.graphics.clearRect(0,0, this.WIDTH, this.HEIGHT);
-        if (this.currentScene.render instanceof Function) 
+        if (this.currentScene.render instanceof Function) {
+            this.graphics.translate(this.camera.getX(), this.camera.getY());
             this.currentScene.render(new Graphics(this.graphics));
+            this.graphics.translate(-this.camera.getX(), -this.camera.getY())
+        }
     }
 
     public start() {
@@ -92,4 +97,4 @@ export function Init(width:number, height:number, parent:HTMLElement):Game {
     return new Game(width, height, parent);
 }
 
-export { createScene, Image};
+export { createScene, loadImage};

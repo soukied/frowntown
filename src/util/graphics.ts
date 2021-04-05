@@ -19,4 +19,8 @@ export default class Graphics {
         this.graphics.fillStyle = color;
         this.graphics.fillRect(x, y, width, height);
     }
+
+    public getGraphics():CanvasRenderingContext2D {
+        return this.graphics;
+    }
 }

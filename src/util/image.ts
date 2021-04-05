@@ -16,12 +16,13 @@ export default class Image {
             this.imageElement = loadImage(this.imagePath,(el:HTMLCanvasElement)=>{
                 this.width = el.width;
                 this.height = el.height;
-                Image.IMAGE_COUNT++;
+                Image.IMAGE_LOADED++;
             });
         } else if (imageData instanceof HTMLCanvasElement) {
             this.imageElement = imageData;
             this.width = this.imageElement.width;
             this.height = this.imageElement.height;
+            Image.IMAGE_LOADED++;
         }
     }
 
@@ -44,10 +45,10 @@ export default class Image {
     }
 }
 
-function loadImage(src:string, onload:Function) {
+export function loadImage(src:string, onload:Function) {
     let imageElement:HTMLImageElement = <HTMLImageElement> document.createElement("image");
     imageElement.onerror = () => {throw `Frowntown Error: File '${this.imagePath}' can't be loaded.`};
-    imageElement.onload = ()=>onload(imageElement);
+    imageElement.onload = () =>onload(imageElement);
     this.imageElement.src = src;
     return imageElement
 }
