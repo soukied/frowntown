@@ -2,7 +2,7 @@ import Camera from "./util/camera";
 import GameKeyEvent from "./events/key";
 import GameMouseEvent from "./events/mouse";
 import Graphics from "./util/graphics";
-import Image, {loadImage} from "./util/image";
+import Image, {ALL_IMAGE_LOADED} from "./util/image";
 import Scene, {createScene} from "./scene";
 
 class Game {
@@ -90,11 +90,14 @@ class Game {
             document.exitFullscreen();
         }
       }
-
 }
 
 export function Init(width:number, height:number, parent:HTMLElement):Game {
     return new Game(width, height, parent);
 }
 
-export { createScene, loadImage};
+function loadImage(src:string):Image {
+    return new Image(src);
+}
+
+export { createScene, loadImage as Image, ALL_IMAGE_LOADED};

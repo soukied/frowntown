@@ -1,3 +1,5 @@
+import { allTypeOf } from "./paramchecker";
+
 export default class Camera {
     private x:number = 0;
     private y:number = 0;
@@ -36,6 +38,24 @@ export default class Camera {
 
     public getPos():number[] {
         return [this.x, this.y];
+    }
+
+    public getFixedX(x?:number):number {
+        if (typeof x == "number")
+        return -this.x + x;
+        else return -this.x;
+    }
+
+    public getFixedY(y?:number):number {
+        if (typeof y == "number")
+        return -this.y + y;
+        else return -this.y;
+    }
+
+    public getFixedPos(...pos:number[]):number[] {
+        if (allTypeOf("number", pos[0], pos[1])) {
+            return [-this.x + pos[0], -this.y + pos[1]];
+        } else return [-this.x, -this.y];
     }
 
     public moveX(velX:number) {

@@ -1,4 +1,17 @@
+import FrowntownError from "../error";
 import Graphics from "./graphics";
+
+let IMAGE_COUNT:number = 0;
+let IMAGE_LOADED:number = 0;
+
+export async function loadImage(src:string) {
+    let imageElement:HTMLImageElement = document.createElement("img");
+    return new Promise(resolve => {
+        imageElement.onload = () => resolve(imageElement);
+        imageElement.src = src;    
+        return imageElement;
+    }).catch(err=>{throw new FrowntownError(`Can't load '${src}'`)}); 
+}
 
 export default class Image {
     private imagePath: string = null;
@@ -6,27 +19,30 @@ export default class Image {
     private width:number;
     private height:number;
 
-    private static IMAGE_COUNT = 0;
-    private static IMAGE_LOADED = 0;
+    // private static IMAGE_COUNT = 0;
+    // private static IMAGE_LOADED = 0;
 
     constructor(imageData: HTMLCanvasElement|string) {
-        Image.IMAGE_COUNT += 1;
+        IMAGE_COUNT++;
         if (typeof imageData == "string")  {
             this.imagePath = imageData;
-            this.imageElement = loadImage(this.imagePath,(el:HTMLCanvasElement)=>{
-                this.width = el.width;
-                this.height = el.height;
-                Image.IMAGE_LOADED++;
+            loadImage(imageData).then(value=>{
+                this.imageElement = <HTMLImageElement> value;
+                IMAGE_LOADED++;
             });
         } else if (imageData instanceof HTMLCanvasElement) {
             this.imageElement = imageData;
             this.width = this.imageElement.width;
             this.height = this.imageElement.height;
-            Image.IMAGE_LOADED++;
+            IMAGE_LOADED++;
         }
     }
 
-    public cropImage(sx, sy, sw, sh):Image {
+    public getImagePath():string {
+        return typeof this.imagePath == "string" ? this.imagePath : undefined;
+    }
+
+    public cropImage(sx:number, sy:number, sw:number, sh:number):Image {
         let virtualCanvas:HTMLCanvasElement = document.createElement("canvas");
         let context:CanvasRenderingContext2D;
         virtualCanvas.width = this.width;
@@ -36,19 +52,11 @@ export default class Image {
         return new Image(virtualCanvas);
     }
 
-    public static allImageLoaded():boolean {
-        return this.IMAGE_COUNT == this.IMAGE_LOADED;
-    }
-
     public getImage(): HTMLImageElement {
-        return Image.allImageLoaded() ? <HTMLImageElement> this.imageElement : undefined;
+        return <HTMLImageElement> this.imageElement;
     }
 }
 
-export function loadImage(src:string, onload:Function) {
-    let imageElement:HTMLImageElement = <HTMLImageElement> document.createElement("image");
-    imageElement.onerror = () => {throw `Frowntown Error: File '${this.imagePath}' can't be loaded.`};
-    imageElement.onload = () =>onload(imageElement);
-    this.imageElement.src = src;
-    return imageElement
+export function ALL_IMAGE_LOADED():boolean {
+    return IMAGE_COUNT === IMAGE_LOADED;
 }

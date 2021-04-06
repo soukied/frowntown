@@ -117,12 +117,83 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"rkI4":[function(require,module,exports) {
+})({"MPwZ":[function(require,module,exports) {
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.allTypeOf = exports.allInstanceOf = exports.allUndefined = void 0;
+
+function allUndefined() {
+  var values = [];
+
+  for (var _i = 0; _i < arguments.length; _i++) {
+    values[_i] = arguments[_i];
+  }
+
+  var value = true;
+
+  for (var _a = 0, values_1 = values; _a < values_1.length; _a++) {
+    var i = values_1[_a];
+    if (typeof i != "undefined") value = false;
+    break;
+  }
+
+  return value;
+}
+
+exports.allUndefined = allUndefined;
+
+function allInstanceOf(objectinstance) {
+  var values = [];
+
+  for (var _i = 1; _i < arguments.length; _i++) {
+    values[_i - 1] = arguments[_i];
+  }
+
+  var out = true;
+
+  for (var _a = 0, values_2 = values; _a < values_2.length; _a++) {
+    var i = values_2[_a];
+    if (!(i instanceof objectinstance)) out = false;
+    break;
+  }
+
+  return out;
+}
+
+exports.allInstanceOf = allInstanceOf;
+
+function allTypeOf(type) {
+  var values = [];
+
+  for (var _i = 1; _i < arguments.length; _i++) {
+    values[_i - 1] = arguments[_i];
+  }
+
+  var out = true;
+
+  for (var _a = 0, values_3 = values; _a < values_3.length; _a++) {
+    var i = values_3[_a];
+    if (_typeof(i) != type) out = false;
+    break;
+  }
+
+  return out;
+}
+
+exports.allTypeOf = allTypeOf;
+},{}],"mjRS":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var paramchecker_1 = require("./paramchecker");
 
 var Camera =
 /** @class */
@@ -161,6 +232,26 @@ function () {
 
   Camera.prototype.getPos = function () {
     return [this.x, this.y];
+  };
+
+  Camera.prototype.getFixedX = function (x) {
+    if (typeof x == "number") return -this.x + x;else return -this.x;
+  };
+
+  Camera.prototype.getFixedY = function (y) {
+    if (typeof y == "number") return -this.y + y;else return -this.y;
+  };
+
+  Camera.prototype.getFixedPos = function () {
+    var pos = [];
+
+    for (var _i = 0; _i < arguments.length; _i++) {
+      pos[_i] = arguments[_i];
+    }
+
+    if (paramchecker_1.allTypeOf("number", pos[0], pos[1])) {
+      return [-this.x + pos[0], -this.y + pos[1]];
+    } else return [-this.x, -this.y];
   };
 
   Camera.prototype.moveX = function (velX) {
@@ -205,7 +296,7 @@ function () {
 }();
 
 exports.default = Camera;
-},{}],"mKpP":[function(require,module,exports) {
+},{"./paramchecker":"MPwZ"}],"mKpP":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -219,17 +310,35 @@ function () {
     var _this = this;
 
     this.element = element;
-    this.keyDownValue = new Map();
+    this.keyDownValue = {};
+    this.preventDefaultKeys = {};
     addEventListener("keydown", function (event) {
-      _this.keyDownValue.set(event.key, true);
+      _this.keyDownValue[event.key] = true;
+
+      if (_this.preventDefaultKeys[event.key]) {
+        event.preventDefault();
+      }
     });
     addEventListener("keyup", function (event) {
-      _this.keyDownValue.set(event.key, false);
+      _this.keyDownValue[event.key] = false;
     });
   }
 
+  GameKeyEvent.prototype.keyDownPreventDefault = function () {
+    var keys = [];
+
+    for (var _i = 0; _i < arguments.length; _i++) {
+      keys[_i] = arguments[_i];
+    }
+
+    for (var _a = 0, keys_1 = keys; _a < keys_1.length; _a++) {
+      var key = keys_1[_a];
+      this.preventDefaultKeys[key] = true;
+    }
+  };
+
   GameKeyEvent.prototype.isDown = function (key) {
-    return this.keyDownValue.get(key) ? true : false;
+    return this.keyDownValue[key] ? true : false;
   };
 
   return GameKeyEvent;
@@ -311,7 +420,7 @@ function () {
 }();
 
 exports.default = GameMouseEvent;
-},{}],"U5jo":[function(require,module,exports) {
+},{}],"ZECt":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -339,43 +448,297 @@ function () {
     this.graphics.fillRect(x, y, width, height);
   };
 
-  Graphics.prototype.getGraphics = function () {
+  Graphics.prototype.getContext = function () {
     return this.graphics;
+  };
+
+  Graphics.prototype.drawImage = function (imageData) {
+    var args = [];
+
+    for (var _i = 1; _i < arguments.length; _i++) {
+      args[_i - 1] = arguments[_i];
+    }
+
+    if (imageData.getImage() === undefined) return;
+    if (args.length == 2) this.graphics.drawImage(imageData.getImage(), args[0], args[1]);else if (args.length == 4) this.graphics.drawImage(imageData.getImage(), args[0], args[1], args[2], args[3]);
   };
 
   return Graphics;
 }();
 
 exports.default = Graphics;
-},{}],"gmPD":[function(require,module,exports) {
+
+var Text =
+/** @class */
+function () {
+  function Text(text, fontSize) {}
+
+  return Text;
+}();
+},{}],"yvdU":[function(require,module,exports) {
 "use strict";
+
+var __extends = this && this.__extends || function () {
+  var _extendStatics = function extendStatics(d, b) {
+    _extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) {
+        if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+      }
+    };
+
+    return _extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+
+    _extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var FrowntownError =
+/** @class */
+function (_super) {
+  __extends(FrowntownError, _super);
+
+  function FrowntownError(message) {
+    var _this = _super.call(this, message) || this;
+
+    _this.name = "FrowntownError";
+    return _this;
+  }
+
+  return FrowntownError;
+}(Error);
+
+exports.default = FrowntownError;
+},{}],"SXTv":[function(require,module,exports) {
+"use strict";
+
+var __awaiter = this && this.__awaiter || function (thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function (resolve) {
+      resolve(value);
+    });
+  }
+
+  return new (P || (P = Promise))(function (resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
+
+var __generator = this && this.__generator || function (thisArg, body) {
+  var _ = {
+    label: 0,
+    sent: function sent() {
+      if (t[0] & 1) throw t[1];
+      return t[1];
+    },
+    trys: [],
+    ops: []
+  },
+      f,
+      y,
+      t,
+      g;
+  return g = {
+    next: verb(0),
+    "throw": verb(1),
+    "return": verb(2)
+  }, typeof Symbol === "function" && (g[Symbol.iterator] = function () {
+    return this;
+  }), g;
+
+  function verb(n) {
+    return function (v) {
+      return step([n, v]);
+    };
+  }
+
+  function step(op) {
+    if (f) throw new TypeError("Generator is already executing.");
+
+    while (_) {
+      try {
+        if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+        if (y = 0, t) op = [op[0] & 2, t.value];
+
+        switch (op[0]) {
+          case 0:
+          case 1:
+            t = op;
+            break;
+
+          case 4:
+            _.label++;
+            return {
+              value: op[1],
+              done: false
+            };
+
+          case 5:
+            _.label++;
+            y = op[1];
+            op = [0];
+            continue;
+
+          case 7:
+            op = _.ops.pop();
+
+            _.trys.pop();
+
+            continue;
+
+          default:
+            if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+              _ = 0;
+              continue;
+            }
+
+            if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+              _.label = op[1];
+              break;
+            }
+
+            if (op[0] === 6 && _.label < t[1]) {
+              _.label = t[1];
+              t = op;
+              break;
+            }
+
+            if (t && _.label < t[2]) {
+              _.label = t[2];
+
+              _.ops.push(op);
+
+              break;
+            }
+
+            if (t[2]) _.ops.pop();
+
+            _.trys.pop();
+
+            continue;
+        }
+
+        op = body.call(thisArg, _);
+      } catch (e) {
+        op = [6, e];
+        y = 0;
+      } finally {
+        f = t = 0;
+      }
+    }
+
+    if (op[0] & 5) throw op[1];
+    return {
+      value: op[0] ? op[1] : void 0,
+      done: true
+    };
+  }
+};
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.ALL_IMAGE_LOADED = exports.loadImage = void 0;
+
+var error_1 = __importDefault(require("../error"));
+
+var IMAGE_COUNT = 0;
+var IMAGE_LOADED = 0;
+
+function loadImage(src) {
+  return __awaiter(this, void 0, void 0, function () {
+    var imageElement;
+    return __generator(this, function (_a) {
+      imageElement = document.createElement("img");
+      return [2
+      /*return*/
+      , new Promise(function (resolve) {
+        imageElement.onload = function () {
+          return resolve(imageElement);
+        };
+
+        imageElement.src = src;
+        return imageElement;
+      }).catch(function (err) {
+        throw new error_1.default("Can't load '" + src + "'");
+      })];
+    });
+  });
+}
+
+exports.loadImage = loadImage;
+
 var Image =
 /** @class */
 function () {
+  // private static IMAGE_COUNT = 0;
+  // private static IMAGE_LOADED = 0;
   function Image(imageData) {
     var _this = this;
 
     this.imagePath = null;
-    Image.IMAGE_COUNT += 1;
+    IMAGE_COUNT++;
 
     if (typeof imageData == "string") {
       this.imagePath = imageData;
-      this.imageElement = loadImage(this.imagePath, function (el) {
-        _this.width = el.width;
-        _this.height = el.height;
-        Image.IMAGE_COUNT++;
+      loadImage(imageData).then(function (value) {
+        _this.imageElement = value;
+        IMAGE_LOADED++;
       });
     } else if (imageData instanceof HTMLCanvasElement) {
       this.imageElement = imageData;
       this.width = this.imageElement.width;
       this.height = this.imageElement.height;
+      IMAGE_LOADED++;
     }
   }
+
+  Image.prototype.getImagePath = function () {
+    return typeof this.imagePath == "string" ? this.imagePath : undefined;
+  };
 
   Image.prototype.cropImage = function (sx, sy, sw, sh) {
     var virtualCanvas = document.createElement("canvas");
@@ -387,44 +750,28 @@ function () {
     return new Image(virtualCanvas);
   };
 
-  Image.allImageLoaded = function () {
-    return this.IMAGE_COUNT == this.IMAGE_LOADED;
-  };
-
   Image.prototype.getImage = function () {
-    return Image.allImageLoaded() ? this.imageElement : undefined;
+    return this.imageElement;
   };
 
-  Image.IMAGE_COUNT = 0;
-  Image.IMAGE_LOADED = 0;
   return Image;
 }();
 
 exports.default = Image;
 
-function loadImage(src, onload) {
-  var _this = this;
-
-  var imageElement = document.createElement("image");
-
-  imageElement.onerror = function () {
-    throw "Frowntown Error: File '" + _this.imagePath + "' can't be loaded.";
-  };
-
-  imageElement.onload = function () {
-    return onload(imageElement);
-  };
-
-  this.imageElement.src = src;
-  return imageElement;
+function ALL_IMAGE_LOADED() {
+  return IMAGE_COUNT === IMAGE_LOADED;
 }
-},{}],"kh5L":[function(require,module,exports) {
+
+exports.ALL_IMAGE_LOADED = ALL_IMAGE_LOADED;
+},{"../error":"yvdU"}],"kh5L":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.createScene = void 0;
+exports.createScene = exports.globalData = void 0;
+exports.globalData = {};
 
 var Scene =
 /** @class */
@@ -447,6 +794,7 @@ exports.default = Scene;
 function createScene(scene) {
   var obj = scene;
   obj.isInitialized = false;
+  obj.global = exports.globalData;
   return scene;
 }
 
@@ -497,19 +845,24 @@ var __importDefault = this && this.__importDefault || function (mod) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Image = exports.createScene = exports.Init = void 0;
+exports.ALL_IMAGE_LOADED = exports.Image = exports.createScene = exports.Init = void 0;
 
-var camera_1 = __importDefault(require("./camera"));
+var camera_1 = __importDefault(require("./util/camera"));
 
 var key_1 = __importDefault(require("./events/key"));
 
 var mouse_1 = __importDefault(require("./events/mouse"));
 
-var graphics_1 = __importDefault(require("./graphics"));
+var graphics_1 = __importDefault(require("./util/graphics"));
 
-var image_1 = __importDefault(require("./image"));
+var image_1 = __importStar(require("./util/image"));
 
-exports.Image = image_1.default;
+Object.defineProperty(exports, "ALL_IMAGE_LOADED", {
+  enumerable: true,
+  get: function get() {
+    return image_1.ALL_IMAGE_LOADED;
+  }
+});
 
 var scene_1 = __importStar(require("./scene"));
 
@@ -607,4 +960,10 @@ function Init(width, height, parent) {
 }
 
 exports.Init = Init;
-},{"./camera":"rkI4","./events/key":"mKpP","./events/mouse":"tH3k","./graphics":"U5jo","./image":"gmPD","./scene":"kh5L"}]},{},["MYCW"], "Frowntown")
+
+function loadImage(src) {
+  return new image_1.default(src);
+}
+
+exports.Image = loadImage;
+},{"./util/camera":"mjRS","./events/key":"mKpP","./events/mouse":"tH3k","./util/graphics":"ZECt","./util/image":"SXTv","./scene":"kh5L"}]},{},["MYCW"], "Frowntown")

@@ -1,5 +1,7 @@
 import Graphics from './util/graphics';
 
+export let globalData:any = {};
+
 export interface SceneInterface {
     init():void;
     update():void;
@@ -8,7 +10,7 @@ export interface SceneInterface {
 
 export default class Scene implements SceneInterface {
     public isInitialized:boolean = false;
-    private data:any;
+    public global:any;
     init() {
 
     }
@@ -22,7 +24,8 @@ export default class Scene implements SceneInterface {
 }
 
 export function createScene(scene:SceneInterface):Scene {
-    let obj = <any> scene;
+    let obj:Scene = <Scene> scene;
     obj.isInitialized = false;
+    obj.global = globalData;
     return <Scene> scene;
 }

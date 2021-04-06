@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "build": "parcel build src/game.ts -d dist -o frowntown.js --no-minify --no-source-maps --global Frowntown && uglifyjs dist/frowntown.js -c -o dist/frowntown.min.js && cp dist/frowntown.min.js example/"
+    "build": "parcel build src/game.ts -d dist -o frowntown.js --no-minify --no-source-maps --global Frowntown && uglifyjs dist/frowntown.js -c -m -o dist/frowntown.min.js"
   },
   "author": "",
   "license": "ISC",

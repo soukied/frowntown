@@ -1,4 +1,4 @@
-import Image from "./image"
+import Image, {ALL_IMAGE_LOADED} from "./image";
 
 export default class Graphics {
     private graphics:CanvasRenderingContext2D;
@@ -20,7 +20,21 @@ export default class Graphics {
         this.graphics.fillRect(x, y, width, height);
     }
 
-    public getGraphics():CanvasRenderingContext2D {
+    public getContext():CanvasRenderingContext2D {
         return this.graphics;
+    }
+
+    public drawImage(imageData:Image, ...args:number[]) {
+        if (imageData.getImage() === undefined) return;
+        if (args.length == 2)
+            this.graphics.drawImage(imageData.getImage(), args[0], args[1]);
+        else if (args.length == 4) 
+            this.graphics.drawImage(imageData.getImage(), args[0], args[1], args[2], args[3]);
+    }
+}
+
+class Text {
+    constructor(text:string, fontSize:number, ) {
+
     }
 }
