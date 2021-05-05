@@ -1,5 +1,7 @@
 # FROWNTOWN
+
 A lightweight HTML5 game library for my future projects.
+
 ---
 ## Installation
 ### ES6
