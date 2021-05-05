@@ -782,7 +782,7 @@ function () {
 
   Scene.prototype.init = function () {};
 
-  Scene.prototype.update = function () {};
+  Scene.prototype.update = function (dt) {};
 
   Scene.prototype.render = function (graphics) {};
 
@@ -877,6 +877,7 @@ var Game =
 /** @class */
 function () {
   function Game(width, height, parent) {
+    this.framesPerSecond = 0;
     this.canvasElement = document.createElement("canvas");
     this.canvasElement.width = this.WIDTH = width;
     this.canvasElement.height = this.HEIGHT = height;
@@ -899,36 +900,74 @@ function () {
     this.currentScene = newScene;
   };
 
-  Game.prototype.run = function () {
+  Game.prototype.run = function (dt) {
     if (!this.currentScene.isInitialized) {
       if (this.currentScene.init instanceof Function) this.currentScene.init();
       this.currentScene.isInitialized = true;
     } // set camera
 
 
-    if (this.currentScene.update instanceof Function) this.currentScene.update();
-    this.graphics.clearRect(0, 0, this.WIDTH, this.HEIGHT);
+    if (this.currentScene.update instanceof Function) this.currentScene.update(dt);
+  };
 
-    if (this.currentScene.render instanceof Function) {
-      this.graphics.translate(this.camera.getX(), this.camera.getY());
-      this.currentScene.render(new graphics_1.default(this.graphics));
-      this.graphics.translate(-this.camera.getX(), -this.camera.getY());
-    }
+  Game.prototype.getFPS = function () {
+    return this.framesPerSecond;
   };
 
   Game.prototype.start = function () {
     var _this = this;
 
-    if (this.IS_RUNNING) return;
+    if (this.IS_RUNNING) return; // this.currentScene.init();
+
     this.IS_RUNNING = true;
+    var lastTime = new Date().getTime();
+    var now;
+    var delta;
+    var ticks = 0;
+    var times = 0;
+    var frames = 0;
+    setInterval(function () {
+      if (!_this.currentScene.isInitialized) {
+        if (_this.currentScene.init instanceof Function) _this.currentScene.init();
+        _this.currentScene.isInitialized = true;
+      } // console.log("Hello World");
+      // if (!this.IS_RUNNING) return;
 
-    var callback = function callback() {
-      _this.run();
 
-      if (_this.IS_RUNNING) requestAnimationFrame(callback);
-    };
+      now = new Date().getTime();
+      delta = now - lastTime;
+      ticks += delta;
+      times += delta;
+      lastTime = now;
+      frames++;
 
-    requestAnimationFrame(callback);
+      if (ticks >= 1000 / 60) {
+        _this.run(delta / 1000);
+
+        ticks = 0;
+      }
+
+      if (times >= 1000) {
+        _this.framesPerSecond = frames;
+        frames = 0;
+        times -= 1000;
+        console.log("Starting");
+      }
+
+      _this.graphics.clearRect(0, 0, _this.WIDTH, _this.HEIGHT);
+
+      if (_this.currentScene.render instanceof Function) {
+        _this.graphics.translate(_this.camera.getX(), _this.camera.getY());
+
+        _this.currentScene.render(new graphics_1.default(_this.graphics));
+
+        _this.graphics.translate(-_this.camera.getX(), -_this.camera.getY());
+      }
+    }, 0); // let callback = () => {
+    //     this.run();
+    //     if (this.IS_RUNNING) requestAnimationFrame(callback);
+    // }
+    // requestAnimationFrame(callback);
   };
 
   Game.prototype.stop = function () {

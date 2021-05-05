@@ -14,6 +14,7 @@ class Game {
     private currentScene:Scene;
     private WIDTH : number;
     private HEIGHT : number;
+    private framesPerSecond:number = 0;
     public keyEvent : GameKeyEvent;
     public mouseEvent : GameMouseEvent;
     public camera : Camera;
@@ -43,7 +44,7 @@ class Game {
         this.currentScene = newScene;
     }
 
-    private run() {
+    private run(dt:number) {
         if (!this.currentScene.isInitialized) {
             if (this.currentScene.init instanceof Function)
                 this.currentScene.init();
@@ -51,23 +52,60 @@ class Game {
         }
         // set camera
         if (this.currentScene.update instanceof Function)
-        this.currentScene.update();
-        this.graphics.clearRect(0,0, this.WIDTH, this.HEIGHT);
-        if (this.currentScene.render instanceof Function) {
-            this.graphics.translate(this.camera.getX(), this.camera.getY());
-            this.currentScene.render(new Graphics(this.graphics));
-            this.graphics.translate(-this.camera.getX(), -this.camera.getY())
-        }
+            this.currentScene.update(dt);
+        
+    }
+
+    public getFPS():number{
+        return this.framesPerSecond;
     }
 
     public start() {
         if (this.IS_RUNNING) return;
+        // this.currentScene.init();
         this.IS_RUNNING = true;
-        let callback = () => {
-            this.run()
-            if (this.IS_RUNNING) requestAnimationFrame(callback);
-        }
-        requestAnimationFrame(callback);
+        let lastTime = new Date().getTime();
+        let now;
+        let delta;
+        let ticks = 0;
+        let times = 0;
+        let frames = 0;
+        setInterval(()=>{
+            if (!this.currentScene.isInitialized) {
+                if (this.currentScene.init instanceof Function)
+                    this.currentScene.init();
+                this.currentScene.isInitialized = true;
+            }
+            // console.log("Hello World");
+            // if (!this.IS_RUNNING) return;
+            now = new Date().getTime();
+            delta = now - lastTime;
+            ticks += delta;
+            times += delta;
+            lastTime = now;
+            frames++;
+            if (ticks >= 1000/60) {
+                this.run(delta/1000);
+                ticks=0;
+            }
+            if (times >= 1000) {
+                this.framesPerSecond = frames;
+                frames = 0;
+                times -= 1000;
+                console.log("Starting");
+            }
+            this.graphics.clearRect(0,0, this.WIDTH, this.HEIGHT);
+            if (this.currentScene.render instanceof Function) {
+                this.graphics.translate(this.camera.getX(), this.camera.getY());
+                this.currentScene.render(new Graphics(this.graphics));
+                this.graphics.translate(-this.camera.getX(), -this.camera.getY())
+            }
+        },0);
+        // let callback = () => {
+        //     this.run();
+        //     if (this.IS_RUNNING) requestAnimationFrame(callback);
+        // }
+        // requestAnimationFrame(callback);
     }
 
     public stop() {

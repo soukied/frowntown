@@ -4,7 +4,7 @@ export let globalData:any = {};
 
 export interface SceneInterface {
     init():void;
-    update():void;
+    update(arg0:number):void;
     render(graphics:Graphics):void;
 }
 
@@ -15,7 +15,7 @@ export default class Scene implements SceneInterface {
 
     }
 
-    update() {
+    update(dt:number) {
 
     }
     render(graphics:Graphics) {

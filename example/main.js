@@ -4,8 +4,10 @@ var scene1 = {
         this.player1=[20,20];
         this.speed = 2;
         this.cursor = Frowntown.Image("assets/cursor.png");
+        this.deltatime = 0;
     },  
-    update() {
+    update(dt) {
+        window.deltatime = dt;
         game.keyEvent.keyDownPreventDefault("F12");
         this.player1[0] = game.mouseEvent.getX();
         this.player1[1] = game.mouseEvent.getY();
@@ -20,10 +22,17 @@ var scene1 = {
         if (game.keyEvent.isDown(" "))
             game.camera.reset();
     },
+    /** 
+     * @param {CanvasRenderingContext2D} g 
+     */
     render(g) {
-        g.drawLine("black",1, this.player1[0], this.player1[1],400,300);
+        let ctx = g.getContext();
         g.fillRect("yellow", game.camera.getFixedX(), game.camera.getFixedY(), 20, 20);
         // if (Frowntown.ALL_IMAGE_LOADED())
+        ctx.fillStyle = "black";
+        ctx.font = "50px monospace";
+        ctx.fillText(`FPS: ${game.getFPS()}`, 0, 50);
+        g.drawLine("black",1, this.player1[0], this.player1[1],400,300);
         g.drawImage(this.cursor, this.player1[0], this.player1[1], 20, 20);
     }
 }
